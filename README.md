@@ -1,3 +1,5 @@
+Ok, I am new to Github, so try not to throw too many rocks at me.  :)
+
 This release is intended to work with  OpenSim 0.9x, the OpenSimSearch 3rd party module,  and PHP7 / MySQLi.
 
 If you are not using PHP7 and MySQLi on your server, the orignial PHP5 / MySQL examples on the GitHub page should work fine.
