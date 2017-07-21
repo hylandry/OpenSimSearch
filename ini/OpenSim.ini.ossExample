@@ -1,0 +1,46 @@
+
+
+[DataSnapshot]
+    ;# {index_sims} {} {Enable data snapshotting (search)?} {true false} false
+    ;; The following set of configs pertains to search.
+    ;; Set index_sims to true to enable search engines to index your
+
+	;; The following set of configs pertains to search.
+    ;; Set index_sims to true to enable search engines to index your
+    ;; searchable data.
+    ;; If false, no data will be exposed, DataSnapshot module will be off,
+    ;; and you can ignore the rest of these search-related configs.
+
+    index_sims = true
+
+
+
+
+ ;# {data_exposure} {index_sims:true} {How much data should be exposed?} {minimum all} minimum
+    ;; The variable data_exposure controls what the regions expose:
+    ;;    minimum: exposes only things explicitly marked for search
+    ;;    all: exposes everything
+    ;;
+    ;;    Note from Hy:    This was broken for a long time, it is fixed in newer releases..   If your parcels are not obeying "Show in Search"
+    ;;	                   set this to  data_exposure = all         otherwise only full-region parcels will be indexed.
+    
+    
+    data_exposure = minimum
+
+
+	gridname = "YourGridNickname"
+
+
+	;; New way of specifying data services, one per service
+	;;
+	;;   /search/ can be any path you put your PHP files
+		
+	DATA_SRV_MISearch = "http://yourgrid_WEB_url.com/search/register.php"
+	
+	
+[Search]
+	Module = "OpenSimSearch"
+	SearchURL = "http://yourgrid_WEB_url.com/search/query.php";
+	
+
+
