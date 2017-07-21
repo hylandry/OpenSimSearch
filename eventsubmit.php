@@ -75,7 +75,7 @@ if (isset($_POST["delrec"])) {
 }
     
     
-    if (strlen($evhglink)>0) {$evdesc=$evdesc."\n\r\n\r HG Link: ".$evhglink; }
+    if (strlen($evhglink)>0) {$evdesc=$evdesc."\n\r\n\r HG Link: ".$evhglink; } 
     
     
  
