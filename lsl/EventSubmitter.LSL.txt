@@ -1,0 +1,251 @@
+//
+//     (c) 2017 - Hyacinth Landry (Hyacinth Jewell) - Hostess wif da mostess @ http://hgluv.com 
+//	   
+//		This is whatever-ware.     Free to use for whatever purpose, commercial, not for profit, plan terror-cell meetings..   I don't care.
+//		Just leave my name in the code credits, ok?    Thanks peeps.  :)
+//
+//		Your OpenSim.ini, OsslEnable.ini  and firewall must have proper settings to allow HTTP-out and return response.    
+//		If you do not know how to do this, it is beyond the scope of this document to explain.
+//
+//      This is as-is  ..   there might be some leftover flotsam in there, that doesn't do anything.
+//
+//		It is HIGHLY reccomended that you make this script no-modify, to protect your server details and key.
+//
+
+
+string serverurl = "http://your_WEB_url.com/search/eventsubmit.php";
+string serverdayurl = "http://your_WEB_url.com/search/daytest.php";
+string svrkey="CHANGEME";    //   Change this in the PHP as well, to match.    It helps you restrict access, or just bug people to get latest version.
+integer slimit = 30;    //  Time limit in seconds between event submits.   Helps with spam.
+
+integer lchan = 0;
+key avatarKey;
+integer reqs=0;
+string avatarName;
+string body;
+string evtitle; 
+string evdesc;
+string evhglink;
+integer evcategory=0;
+string evtime;
+string evdate;
+string evduration="60";
+integer evrating=0;
+integer evcover=0;
+string parcelOwner;
+string parcelName; 
+string parcelID;
+integer nextReqTime; 
+key http_request_id;
+string oops;
+string groupname;
+
+
+default
+{
+    state_entry()
+    {
+        llSetText(oops+"EventBlaster alpha 0.31b (BigNBouncy)\nClick to get started!\rStatus will change to green when\rall required info is entered.",<255,255,0>,1);
+
+      string login="login.osgrid.org";
+      if (osGetGridLoginURI() !="" ) {login=osGetGridLoginURI();}
+      if (llGetSubString(login,0,6) == "http://") { login=llDeleteSubString(login,0,6); }
+      if (llGetSubString(login,0,7) == "https://") { login=llDeleteSubString(login,0,6); }
+      
+      string region = llGetRegionName();
+      vector pp = llGetPos();
+      string xyz=llRound(pp.x)+"/"+llRound(pp.y)+"/"+llRound(pp.z);
+      evhglink="hop://"+login+"/"+region+"/"+ xyz;         
+    
+    }
+ 
+    touch_start(integer n) {
+        
+        avatarKey=llDetectedKey(0);
+        avatarName=llDetectedName(0); 
+        
+        list details=llGetObjectDetails(llGetKey(), [OBJECT_GROUP]);
+        groupname=llList2String(details,0);
+        llGiveInventory(avatarKey,"evb-instructions");
+        if (llGetOwner() != avatarKey && !llSameGroup(avatarKey)) {
+            llInstantMessage(avatarKey,"Sorry, you must be owner or have group active to run this script.");
+            llResetScript();
+            }
+        llOwnerSay("Entering command mode. Type help: to see commands.");
+        llSetText("Waiting for programming...",<255,128,0>,1);
+        llListen(lchan,"",avatarKey,"");
+        llSetTimerEvent(800);
+        }
+        
+   timer(){  
+        oops="Oops, timed out.   Data entered should still be there.";
+        llResetScript(); }
+    
+    listen(integer lchan, string namez, key id, string data)
+        {
+         
+         integer i = llSubStringIndex(data, ":");
+         oops="";
+         if (i !=-1) {
+             string name=llToLower(llGetSubString(data, 0, i - 1));
+             string value = llGetSubString(data, i + 1, -1);
+              llSay(0,name+" --- "+value);             
+              if(name == "title")
+                    evtitle = value;
+                else if(name == "date")
+                    { 
+                    evdate = value;
+                    llHTTPRequest(serverdayurl+"?day="+evdate, [HTTP_METHOD,"GET",HTTP_MIMETYPE,"text/html"], "");
+                    
+                    }
+                else if(name == "time")
+                    evtime = value;
+ 
+                else if(name == "duration")
+                    evduration = value;
+ 
+                else if(name == "desc")
+                    evdesc = value;
+ 
+                else if(name == "desc+")
+                    evdesc = evdesc+"\r\n"+value;
+ 
+                else if(name == "rating")
+                    evrating = (integer)value;
+ 
+                else if(name == "hglink")
+                    evhglink = value;
+ 
+                else if(name == "category")
+                    evcategory = (integer)value;
+ 
+ 
+                else if(name == "cover")
+                    evcover = (integer)value;
+             
+                else if(name == "help")
+                llGiveInventory(avatarKey,"evb-instructions");             
+
+                else if(name == "delete")
+                {
+                if (llGetUnixTime() < nextReqTime) {
+                oops="Sorry, too many requests.\rPlease wait "+(string)slimit+" seconds try sending command again.";
+                llOwnerSay(oops);
+                    } else {
+                    body="delrec="+value+"&";
+                    http_request_id = llHTTPRequest(serverurl, [HTTP_METHOD,"POST",HTTP_MIMETYPE,"application/x-www-form-urlencoded"], body); }
+                    nextReqTime=llGetUnixTime()+slimit;
+                                          
+                    }
+
+             
+                else if(name == "send" && reqs ==7)
+                {
+                
+                body="";
+
+                string scv = llGetScriptName();
+                string op = (string)llGetPos();
+                op = llDeleteSubString(op,0,0);
+                op = llDeleteSubString(op,-1,-1);
+                                
+                body = body + "evversion=" + llEscapeURL(scv)+"&";
+                body = body + "evdesc=" + llEscapeURL(evdesc)+"&";
+                body = body + "evname=" + llEscapeURL(evtitle)+"&";        
+                body = body + "evdate=" + llEscapeURL(evdate)+"&";
+                body = body + "evtime=" + llEscapeURL(evtime)+"&";
+                body = body + "evhglink=" + llEscapeURL(evhglink)+"&";                
+                body = body + "evparcelname=" + llEscapeURL(parcelName)+"&";        
+                body = body + "evparcelid=" + llEscapeURL(parcelID)+"&";        
+                body = body + "evparcelowner=" + llEscapeURL(parcelOwner)+"&";                
+                body = body + "evownerid=" + llEscapeURL(avatarKey)+"&";        
+                body = body + "evownername=" + llEscapeURL(avatarName)+"&";
+                body = body + "evobjpos="  + llEscapeURL(op)+"&";              
+        
+                body = body + "evcategory=" + llEscapeURL((string)evcategory)+"&";       
+                body = body + "evduration=" + llEscapeURL(evduration)+"&";
+                body = body + "evrating=" + llEscapeURL((string)evrating)+"&";
+                body = body + "evcover=" + llEscapeURL((string)evcover)+"&"; 
+                body = body + "me=" + llEscapeURL(svrkey)+"&";
+
+                if (llGetUnixTime() < nextReqTime) {
+                oops="Sorry, too many requests.\rPlease wait "+(string)slimit+" seconds try sending command again.";
+                llOwnerSay(oops);
+                    } else {
+                    llOwnerSay("Event listing sent to server.");
+                    llSetText("Event listing sent to server",<255,255,255>,1);
+                    llReleaseURL(serverurl);
+                    http_request_id = llHTTPRequest(serverurl, [HTTP_METHOD,"POST",HTTP_MIMETYPE,"application/x-www-form-urlencoded"], body); 
+                    llSleep(1);
+                    }
+                    nextReqTime=llGetUnixTime()+slimit;
+            
+
+                } 
+                
+                }     
+             
+        string stat="";
+        integer req=0;
+        vector scol=<255,128,0>;
+                        
+        if (evtitle) {stat=stat+"Title: "+evtitle+"\r"; req=req+1; }
+        if (evtime && evdate && evduration) {stat=stat+"Date/Time: "+ evdate+" "+evtime+"\r"; req=req+2;}
+        if (evduration) {stat=stat+"Duration: "+evduration+"\r"; }
+        if (evrating ==0) stat=stat+"Rating: General <-- rating: (0,1 or 2 to change)\r";                                        
+        if (evrating ==1) stat=stat+"Rating: *Mature*\r";                                        
+        if (evrating ==2) stat=stat+"Rating: **Adult**\r";                              
+        if (evcover) stat=stat+"Cover: "+evcover+"\r";                                                          
+        if (evhglink) stat=stat+"HG Link: "+evhglink+"\r";                                                                  
+        if (evdesc) { stat=stat+"desc: "+evdesc+"\r";  req=req+4; } 
+        
+        string statg="Info needed...\r\r";
+        string needed="Needed=";
+        if ((req & 1) ==0) needed=needed+"title: ";
+        if ((req & 4) ==0) needed=needed+"desc: ";
+        if ((req & 2) ==0) needed=needed+"(date:yyyy-mm-dd .. time:hh:mm)  ";
+
+        
+        
+        if (req==7) { scol=<0,255,0>; 
+            needed="";
+            statg="Ready to send:!\r\r";
+            }
+        reqs=req;
+            
+        llSetText(statg+stat+"\r"+needed,scol,1);
+        
+
+                 
+    } 
+        
+        
+   http_response(key request_id, integer status, list metadata, string body)
+    {
+        
+        list dt = llParseString2List(body," "," ");
+    
+        if (llList2String(dt,0) == "Sorry") 
+        { llOwnerSay(body); return; } 
+        
+        if (llList2String(dt,0) == "DATEOK") {
+        evdate=llList2String(dt,1);
+        evtime=llList2String(dt,2); 
+        llSetText("Date/time set to: "+evdate+" / "+evtime+"\rtype /"+lchan+": to refresh status.",<255,255,0>,1);
+        return;
+        }
+
+        if (request_id != http_request_id) return;
+ 
+        vector COLOR_BLUE = <0.0, 0.0, 1.0>;
+        float  OPAQUE     = 1.0;
+ 
+        llOwnerSay("Server: "+body);
+        llSetText(body,<255,255,255>,1);
+        llReleaseURL(serverurl);
+        
+    }        
+    
+    
+ 
+}

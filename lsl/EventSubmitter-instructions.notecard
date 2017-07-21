@@ -1,0 +1,56 @@
+Rez on the ground, where the event is to take place.   This will be the event location in the listings.    Click on the prim to get started.  (will only work if owner or group)
+
+Commands:  (no longer need /89)
+
+title:     (name of event)
+date:     (YYYY-MM-DD)
+time:     (HH:MM)  Must be in UTC...  you do the math
+desc:      (event description)
+
+**NEW**   The date function is pretty cool.  You can put in very flexible dates.  eg: "Monday","Second Wednesday of June", "Today", "Friday 5PM"..   it fills out both date and time...  Try it! :) 
+
+Optional...
+    duration: (now optional..  default=60 minutes)
+   rating:  (GENERAL, Moderate, Adult)
+   cover:    (cover charge: in grids with no $$ be creative)
+   category: (number, 0=unspecified, list below )
+   hglink: (hop://link.tohypergrid:port#/location)
+
+Server commands..
+    send:  (send event to server, wait for response..   remember the colon!)
+    delete: XXXXXXXXXX (ID number given by server)
+
+
+Linden Category List:
+    0 - Any  ("*Unspecified*")
+    18- Discussion
+    19- Sports
+    20- Live Music
+    22- Commercial
+    23- Nightlife/Entertainment
+    24- Games/Contests
+    25- Pageants
+    26- Education
+    27- Arts and Culture
+    28- Charity/Support Groups
+    29- Miscellaneous
+
+NOTES AND TROUBLESHOOTING:
+
+An example of how to enter an event...  click on the prim first.
+
+title:This is my event name
+time:22:00
+date:2017-04-22
+desc:This is my event description.  dootle dootle dee, wubba. wubba. wubba.
+send:      <---dont forget the colons!   Save the colons!   Eat kale!
+
+That's it!    You should receive a response from the server saying "Success! PersistentID=xxxxxxxx" ....    if not an error has occurred such as an outdated script (get a new eventBlaster at the region "Your Region..")    or if there is another problem such as a bad date, a crazy duration like 9999999 minutes...   duplicates, etc.     The server response should tell you what to do.
+
+
+An uber-technical note: 
+
+If you enter an event, everything seems ok, but you get no response from the server.     I have found that many scripts to not Release HTTP connections properly, and they pile up over time on your sim, and cause other scripts that use it to stop working.    I have corrected it in this latest release of this software, but there may be other scripts running that are doing the same thing.    If you restart your sim, and it suddenly works...   you know what the problem is. ;)
+
+
+
