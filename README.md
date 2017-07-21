@@ -1,7 +1,7 @@
 This release is intended to work with  OpenSim 0.9x, the OpenSimSearch 3rd party module,  and PHP7 / MySQLi.
 
 If you are not using PHP7 and MySQLi on your server, the orignial PHP5 / MySQL examples on the GitHub page should work fine.
-It can be found at https://github.com/kcozens/OpenSimSearch
+It can be found at https://github.com/kcozens/OpenSimSearch   along with the OpenSimSearch Module itself.
 
 
 PARSER.PHP!!   
