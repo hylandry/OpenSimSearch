@@ -1,6 +1,6 @@
 <?php
 $DB_HOST = "localhost";
-$DB_USER = "opensimsearch";
-$DB_PASS = "username";
-$DB_NAME = "password";
+$DB_USER = "databaseuser";
+$DB_PASS = "password";
+$DB_NAME = "databasename";
 ?>
